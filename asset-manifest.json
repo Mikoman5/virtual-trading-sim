@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/virtual-trading-sim/static/css/main.58eec831.css",
+    "main.js": "/virtual-trading-sim/static/js/main.e06d50aa.js",
+    "index.html": "/virtual-trading-sim/index.html",
+    "main.58eec831.css.map": "/virtual-trading-sim/static/css/main.58eec831.css.map",
+    "main.e06d50aa.js.map": "/virtual-trading-sim/static/js/main.e06d50aa.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.58eec831.css",
+    "static/js/main.e06d50aa.js"
+  ]
+}
