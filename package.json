@@ -35,10 +35,6 @@
     "react-svg-loader": "^3.0.3"
   },
   "homepage": "https://Mikoman5.github.io/virtual-trading-sim/"
-  "scripts": {
-  "start": "node server.js" // or your entry file
-},
-"dependencies": {
-  "express": "^4.18.2" // or whatever you use
-}
+ 
+  
 }
