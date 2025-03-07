@@ -15,12 +15,16 @@ const Dashboard = ({ user, setUser }) => {
   const [minHolderCount, setMinHolderCount] = useState('10');
   const [minLP, setMinLP] = useState('5000');
   const [maxTopHoldersPercent, setMaxTopHoldersPercent] = useState('50');
+  const [pendingTrades, setPendingTrades] = useState([]);
+  const [pooledAmountFrom, setPooledAmountFrom] = useState('');
+  const [pooledAmountTo, setPooledAmountTo] = useState('');
+  const [lpCreationAgeFrom, setLpCreationAgeFrom] = useState('');
+  const [lpCreationAgeTo, setLpCreationAgeTo] = useState('');
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState('dashboard');
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [error, setError] = useState(null);
 
-  // ... useEffect and other functions ...
   useEffect(() => {
     setLoading(true);
     axios.get(`https://mikoman5-trading-backend.onrender.com/api/user/${user.uid}`)
@@ -48,12 +52,11 @@ const Dashboard = ({ user, setUser }) => {
       setError('Fill all fields');
       return;
     }
-    axios.post('https://mikoman5-trading-backend.onrender.com/api/start-trade', { 
+    axios.post('https://mikoman5-trading-backend.onrender.com/api/log-trade', { 
       userId: user.uid,
       tokenAddress,
       riskLevel,
-      bidAmount: Number(bidAmount), 
-      tokenAddress,
+      bidAmount: Number(bidAmount),
       minHolderCount: Number(minHolderCount),
       minLP: Number(minLP),
       maxTopHoldersPercent: Number(maxTopHoldersPercent)
@@ -62,9 +65,14 @@ const Dashboard = ({ user, setUser }) => {
       setError('Trade logged, check APP LOGS');
       setBidAmount('');
       setTokenAddress('');
+      setMinHolderCount('10');
+      setMinLP('5000');
+      setMaxTopHoldersPercent('50');
+      setRiskLevel(null);
     })
     .catch(err => setError(err.response?.data?.error || 'Log failed'));
   };
+
   const runProcess = (tradeId) => {
     axios.post('https://mikoman5-trading-backend.onrender.com/api/run-process', { tradeId })
       .then(res => setError(res.data.message))
@@ -97,9 +105,6 @@ const Dashboard = ({ user, setUser }) => {
     alignItems: 'center',
   });
 
-  
-
-  
   // Calculate trades and stats
   const allTrades = data ? data.trades : [];
   const openTrades = allTrades.filter(t => t.status === 'open');
@@ -120,7 +125,6 @@ const Dashboard = ({ user, setUser }) => {
   if (screen === 'addFunds') {
     return <AddFunds user={user} setData={setData} data={data} goBack={() => setScreen('dashboard')} setError={setError} />;
   }
-
 
   if (screen === 'tradeStatus') {
     return <TradeStatus trade={openTrades[0] || null} allTrades={allTrades} goBack={() => setScreen('dashboard')} />;
@@ -172,124 +176,172 @@ const Dashboard = ({ user, setUser }) => {
             [>DEPOSIT]
           </button>
         </foreignObject>
-        <foreignObject x="30" y="200" width="80" height="30">
+
+        {/* Risk Level Buttons */}
+        <foreignObject x="30" y="130" width="80" height="30">
           <button onClick={() => handleRiskClick('low')} style={buttonStyle('low')}>
             LOW
           </button>
         </foreignObject>
-        <foreignObject x="120" y="200" width="80" height="30">
+        <foreignObject x="120" y="130" width="80" height="30">
           <button onClick={() => handleRiskClick('medium')} style={buttonStyle('medium')}>
             MED
           </button>
         </foreignObject>
-        <foreignObject x="210" y="200" width="80" height="30">
+        <foreignObject x="210" y="130" width="80" height="30">
           <button onClick={() => handleRiskClick('high')} style={buttonStyle('high')}>
             HIGH
           </button>
         </foreignObject>
-        <foreignObject x="75" y="245" width="250" height="20">
+
+        {/* Current Pooled Amount (%) - Figma Block */}
+        <foreignObject x="20" y="170" width="360" height="60">
+          <div style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px' }}>
+            <h3>CURRENT POOLED AMOUNT (%)</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <label>From</label>
+                <input
+                  value={pooledAmountFrom}
+                  onChange={e => setPooledAmountFrom(e.target.value)}
+                  style={{ width: '150px', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+                />
+              </div>
+              <div>
+                <label>To</label>
+                <input
+                  value={pooledAmountTo}
+                  onChange={e => setPooledAmountTo(e.target.value)}
+                  style={{ width: '150px', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+                />
+              </div>
+            </div>
+          </div>
+        </foreignObject>
+
+        {/* First LP Creation Age (sec) - Figma Block */}
+        <foreignObject x="20" y="240" width="360" height="60">
+          <div style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px' }}>
+            <h3>FIRST LP CREATION AGE (sec)</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <label>From</label>
+                <input
+                  value={lpCreationAgeFrom}
+                  onChange={e => setLpCreationAgeFrom(e.target.value)}
+                  style={{ width: '150px', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+                />
+              </div>
+              <div>
+                <label>To</label>
+                <input
+                  value={lpCreationAgeTo}
+                  onChange={e => setLpCreationAgeTo(e.target.value)}
+                  style={{ width: '150px', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+                />
+              </div>
+            </div>
+          </div>
+        </foreignObject>
+
+        {/* New Inputs for Token Address and Buy Parameters */}
+        <foreignObject x="20" y="310" width="250" height="20">
           <input
-            value={bidAmount}
-            onChange={e => setBidAmount(e.target.value)}
+            value={tokenAddress}
+            onChange={e => setTokenAddress(e.target.value)}
+            placeholder="Token Address"
             style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
           />
         </foreignObject>
-        <foreignObject x="75" y="270" width="250" height="20">
-        <input
-          value={tokenAddress}
-          onChange={e => setTokenAddress(e.target.value)}
-          placeholder="Token Address"
-          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
-        />
-      </foreignObject>
-      <foreignObject x="75" y="295" width="80" height="20">
-        <input
-          value={minHolderCount}
-          onChange={e => setMinHolderCount(e.target.value)}
-          placeholder="Min Holders"
-          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
-        />
-      </foreignObject>
-      <foreignObject x="165" y="295" width="80" height="20">
-        <input
-          value={minLP}
-          onChange={e => setMinLP(e.target.value)}
-          placeholder="Min LP"
-          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
-        />
-      </foreignObject>
-      <foreignObject x="255" y="295" width="80" height="20">
-        <input
-          value={maxTopHoldersPercent}
-          onChange={e => setMaxTopHoldersPercent(e.target.value)}
-          placeholder="Max Top %"
-          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
-        />
-      </foreignObject>
-      <foreignObject x="75" y="320" width="250" height="20">
-        <input
-          value={bidAmount}
-          onChange={e => setBidAmount(e.target.value)}
-          placeholder="Bid Amount"
-          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
-        />
-      </foreignObject>
-      <foreignObject x="300" y="320" width="80" height="30">
-        <button onClick={logTrade} style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '12px' }}>
-          [LOG TRADE]
-        </button>
-      </foreignObject>
-      {/* APP LOGS Block */}
-      <foreignObject x="20" y="350" width="360" height="200">
-        <div style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px' }}>
-          <h3>APP LOGS</h3>
-          {pendingTrades.map((trade, index) => (
-            <div key={index}>
-              {trade.timestamp.toLocaleString()}: {trade.logMessage} (Status: {trade.status})
-              {trade.status === 'Pending' && (
-                <button onClick={() => runProcess(trade._id)} style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '10px' }}>
-                  [RUN PROCESS]
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </foreignObject>
-        <foreignObject x="300" y="240" width="80" height="30">
-          <button onClick={startTrade} style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '14px' }} />
+        <foreignObject x="20" y="335" width="80" height="20">
+          <input
+            value={minHolderCount}
+            onChange={e => setMinHolderCount(e.target.value)}
+            placeholder="Min Holders"
+            style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+          />
         </foreignObject>
-        <foreignObject x="230" y="405" width="140" height="20">
+        <foreignObject x="110" y="335" width="80" height="20">
+          <input
+            value={minLP}
+            onChange={e => setMinLP(e.target.value)}
+            placeholder="Min LP"
+            style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+          />
+        </foreignObject>
+        <foreignObject x="200" y="335" width="80" height="20">
+          <input
+            value={maxTopHoldersPercent}
+            onChange={e => setMaxTopHoldersPercent(e.target.value)}
+            placeholder="Max Top %"
+            style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+          />
+        </foreignObject>
+        <foreignObject x="20" y="360" width="250" height="20">
+          <input
+            value={bidAmount}
+            onChange={e => setBidAmount(e.target.value)}
+            placeholder="Bid Amount"
+            style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
+          />
+        </foreignObject>
+        <foreignObject x="280" y="360" width="100" height="30">
+          <button onClick={logTrade} style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '12px' }}>
+            [LOG TRADE]
+          </button>
+        </foreignObject>
+
+        {/* APP LOGS Block */}
+        <foreignObject x="20" y="400" width="360" height="120">
+          <div style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px', height: '100%', overflowY: 'auto' }}>
+            <h3>APP LOGS</h3>
+            {pendingTrades.map((trade, index) => (
+              <div key={index} style={{ marginBottom: '5px' }}>
+                {new Date(trade.timestamp).toLocaleString()}: {trade.logMessage} (Status: {trade.status})
+                {trade.status === 'Pending' && (
+                  <button onClick={() => runProcess(trade._id)} style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '10px' }}>
+                    [RUN PROCESS]
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </foreignObject>
+
+        {/* Stats */}
+        <foreignObject x="230" y="530" width="140" height="20">
           <p style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {totalTrades}
           </p>
         </foreignObject>
-        <foreignObject x="230" y="425" width="140" height="20">
+        <foreignObject x="230" y="550" width="140" height="20">
           <p style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {wins}/{losses}
           </p>
         </foreignObject>
-        <foreignObject x="230" y="445" width="140" height="20">
+        <foreignObject x="230" y="570" width="140" height="20">
           <p style={{ color: profitLoss >= 0 ? '#00FF00' : '#FF0000', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {profitLoss >= 0 ? '+' : ''}{profitLoss} MSOL
           </p>
         </foreignObject>
-        <foreignObject x="230" y="465" width="140" height="20">
+        <foreignObject x="230" y="590" width="140" height="20">
           <p style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {winRate}%
           </p>
         </foreignObject>
-        <foreignObject x="230" y="485" width="140" height="20">
+        <foreignObject x="230" y="610" width="140" height="20">
           <p style={{ color: avgProfit >= 0 ? '#00FF00' : '#FF0000', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {avgProfit >= 0 ? '+' : ''}{avgProfit} MSOL
           </p>
         </foreignObject>
-        <foreignObject x="230" y="505" width="140" height="20">
+        <foreignObject x="230" y="630" width="140" height="20">
           <p style={{ color: '#00FF00', fontFamily: 'Orbitron', fontSize: '12px', margin: '0', padding: '0' }}>
             {totalVolume} MSOL
           </p>
         </foreignObject>
+
         {error && (
-          <foreignObject x="20" y="550" width="360" height="20">
+          <foreignObject x="20" y="530" width="360" height="20">
             <p style={{ color: '#FF0000', fontFamily: 'Orbitron', fontSize: '12px', margin: '0' }}>{error}</p>
           </foreignObject>
         )}
