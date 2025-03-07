@@ -6,7 +6,7 @@ const AddFunds = ({ user, setData, data, goBack, setError }) => {
   const [amount, setAmount] = useState('');
 
   const addFunds = () => {
-    axios.post('http://localhost:5000/api/add-funds', { userId: user.uid, amount: Number(amount) })
+    axios.post('https://mikoman5-trading-backend.onrender.com/api/deposit', { userId: user.uid, amount: Number(amount) })
       .then(res => {
         setData(res.data);
         setAmount('');

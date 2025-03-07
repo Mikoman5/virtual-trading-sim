@@ -18,7 +18,7 @@ const Dashboard = ({ user, setUser }) => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`http://localhost:5000/api/user/${user.uid}`)
+    axios.get(`https://mikoman5-trading-backend.onrender.com/api/user/${user.uid}`)
       .then(res => {
         setData(res.data);
         setLoading(false);
@@ -30,7 +30,7 @@ const Dashboard = ({ user, setUser }) => {
       });
 
     const interval = setInterval(() => {
-      axios.get(`http://localhost:5000/api/user/${user.uid}`)
+      axios.get(`https://mikoman5-trading-backend.onrender.com/api/user/${user.uid}`)
         .then(res => setData(res.data));
     }, 5000);
     return () => clearInterval(interval);
@@ -41,7 +41,7 @@ const Dashboard = ({ user, setUser }) => {
       setError('Select a risk level');
       return;
     }
-    axios.post('http://localhost:5000/api/start-trade', { userId: user.uid, riskLevel, bidAmount: Number(bidAmount) })
+    axios.post('https://mikoman5-trading-backend.onrender.com/api/start-trade', { userId: user.uid, riskLevel, bidAmount: Number(bidAmount) })
       .then(res => {
         setData(res.data);
         setRiskLevel(null);
