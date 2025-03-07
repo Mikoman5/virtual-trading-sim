@@ -11,11 +11,16 @@ const Dashboard = ({ user, setUser }) => {
   const [data, setData] = useState(null);
   const [riskLevel, setRiskLevel] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
+  const [tokenAddress, setTokenAddress] = useState('');
+  const [minHolderCount, setMinHolderCount] = useState('10');
+  const [minLP, setMinLP] = useState('5000');
+  const [maxTopHoldersPercent, setMaxTopHoldersPercent] = useState('50');
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState('dashboard');
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [error, setError] = useState(null);
 
+  // ... useEffect and other functions ...
   useEffect(() => {
     setLoading(true);
     axios.get(`https://mikoman5-trading-backend.onrender.com/api/user/${user.uid}`)
@@ -37,15 +42,28 @@ const Dashboard = ({ user, setUser }) => {
   }, [user]);
 
   const startTrade = () => {
-    if (!riskLevel) {
-      setError('Select a risk level');
+    if (!riskLevel  || !tokenAddress) {
+      setError('Select a risk level and token');
       return;
     }
-    axios.post('https://mikoman5-trading-backend.onrender.com/api/start-trade', { userId: user.uid, riskLevel, bidAmount: Number(bidAmount) })
+    axios.post('https://mikoman5-trading-backend.onrender.com/api/start-trade', { 
+      userId: user.uid,
+      riskLevel, 
+      bidAmount: Number(bidAmount) 
+      tokenAddress,
+      minHolderCount: Number(minHolderCount),
+      minLP: Number(minLP),
+      maxTopHoldersPercent: Number(maxTopHoldersPercent)
+    })
       .then(res => {
         setData(res.data);
         setRiskLevel(null);
         setBidAmount('');
+        setBidAmount('');
+        setTokenAddress('');
+        setMinHolderCount('10');
+        setMinLP('5000');
+        setMaxTopHoldersPercent('50');
         setError(null);
       })
       .catch(err => setError(err.response?.data?.error || 'Trade failed'));
@@ -170,6 +188,38 @@ const Dashboard = ({ user, setUser }) => {
             style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
           />
         </foreignObject>
+        <foreignObject x="75" y="270" width="250" height="20">
+        <input
+          value={tokenAddress}
+          onChange={e => setTokenAddress(e.target.value)}
+          placeholder="Token Address"
+          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '14px' }}
+        />
+      </foreignObject>
+      <foreignObject x="75" y="295" width="80" height="20">
+        <input
+          value={minHolderCount}
+          onChange={e => setMinHolderCount(e.target.value)}
+          placeholder="Min Holders"
+          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+        />
+      </foreignObject>
+      <foreignObject x="165" y="295" width="80" height="20">
+        <input
+          value={minLP}
+          onChange={e => setMinLP(e.target.value)}
+          placeholder="Min LP"
+          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+        />
+      </foreignObject>
+      <foreignObject x="255" y="295" width="80" height="20">
+        <input
+          value={maxTopHoldersPercent}
+          onChange={e => setMaxTopHoldersPercent(e.target.value)}
+          placeholder="Max Top %"
+          style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#FFFFFF', fontFamily: 'Orbitron', fontSize: '12px' }}
+        />
+      </foreignObject>
         <foreignObject x="300" y="240" width="80" height="30">
           <button onClick={startTrade} style={{ width: '100%', height: '100%', background: 'none', border: 'none', color: '#0A0A0A', fontFamily: 'Orbitron', fontSize: '14px' }} />
         </foreignObject>
