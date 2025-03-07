@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/virtual-trading-sim/static/css/main.58eec831.css",
-    "main.js": "/virtual-trading-sim/static/js/main.3ea87fb4.js",
+    "main.js": "/virtual-trading-sim/static/js/main.5359c3e8.js",
     "index.html": "/virtual-trading-sim/index.html",
     "main.58eec831.css.map": "/virtual-trading-sim/static/css/main.58eec831.css.map",
-    "main.3ea87fb4.js.map": "/virtual-trading-sim/static/js/main.3ea87fb4.js.map"
+    "main.5359c3e8.js.map": "/virtual-trading-sim/static/js/main.5359c3e8.js.map"
   },
   "entrypoints": [
     "static/css/main.58eec831.css",
-    "static/js/main.3ea87fb4.js"
+    "static/js/main.5359c3e8.js"
   ]
 }
