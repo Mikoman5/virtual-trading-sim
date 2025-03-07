@@ -50,9 +50,9 @@ const Dashboard = ({ user, setUser }) => {
     }
     axios.post('https://mikoman5-trading-backend.onrender.com/api/start-trade', { 
       userId: user.uid,
-      tokenAddress
+      tokenAddress,
       riskLevel,
-      bidAmount: Number(bidAmount) 
+      bidAmount: Number(bidAmount), 
       tokenAddress,
       minHolderCount: Number(minHolderCount),
       minLP: Number(minLP),
